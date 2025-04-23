@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de NPC</title>
+    <style>
+        body { font-family: monospace; }
+        table { width: 100%; }
+        canvas { width: 100%; filter: saturate(0);image-rendering: pixelated;
+  image-rendering: crisp-edges;}
+        #clock { background: black; color: white; text-align: center; padding: 20px; }
+        #contienecanvas{position:relative;width:100%;height:400px;}
+        canvas{position:absolute;top:0px;left:0px;}
+        #playersCanvas{mix-blend-mode: multiply;}
+        #backgroundCanvas{opacity:0.4}
+    </style>
+</head>
+<body>
+	<div style="position: absolute; top: 10px; left: 10px; z-index: 1000; background: rgba(255,255,255,0.8); padding: 5px;">
+        <label for="agentSelector">Seguir a agente (0 = ninguno):</label>
+        <input type="number" id="agentSelector" value="0" min="0">
+        <input type="range" id="zoomfactor" min=1 max=10 step=1 value="4">
+    </div>
+    <table>
+        <tr>
+            <td colspan=2>
+            	<div id="contienecanvas">
+		             <canvas id="backgroundCanvas" width="800" height="600"></canvas>
+		             <canvas id="playersCanvas" width="800" height="600"></canvas>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan=2>
+                <div id="clock"></div>
+            </td>
+        </tr>
+        <tr style="display:none;">
+            <td><div id="stats"></div></td>
+            <td><canvas id="pieChart" width="400" height="400"></canvas></td>
+        </tr>
+    </table>
+
+    <script src="Persona.js"></script>
+    <script src="utils.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
+
