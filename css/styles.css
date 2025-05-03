@@ -1,0 +1,150 @@
+/* Estilo general */
+body {
+    font-family: monospace;
+    background-color: #1e1e1e;
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+/* Contenedor de controles */
+.controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    background: rgba(135, 184, 248, 0.8);
+    padding: 5px;
+}
+
+/* Tabla y alineaciones */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.centered-row {
+    text-align: center;
+}
+
+.centered-row td {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+/* Contenedor de los canvas */
+#contienecanvas {
+    position: relative;
+    width: 100%;
+    height: 400px;
+}
+
+canvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    filter: saturate(0);
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+#playersCanvas {
+    mix-blend-mode: multiply;
+}
+
+#backgroundCanvas {
+    opacity: 0.4;
+}
+
+/* Posicionamiento del reloj */
+#clock {
+    background: rgb(0, 0, 0);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+    border-radius: 10px;
+    margin: 20px auto;
+    width: 250px;
+}
+
+/* Posicionamiento de la tabla de stats y pie chart en la parte inferior */
+.bottom-center {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+}
+
+/* Estilización de los botones */
+button {
+    background-color: #ff4500;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #ff5733;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+#stopSimulation {
+    background-color: #d32f2f;
+}
+
+#stopSimulation:hover {
+    background-color: #ff3b3b;
+}
+
+#resumeSimulation {
+    background-color: #2e7d32;
+}
+
+#resumeSimulation:hover {
+    background-color: #45a049;
+}
+#pieChart {
+    display: none;
+}
+.controls label {
+    font-size: 18px;
+    font-weight: bold;
+    color: black;
+}
+.controls input[type="range"] {
+    width: 200px; /* Aumenta el tamaño */
+    height: 10px; /* Hace más grueso el control */
+    background: #ff4500; /* Color más llamativo */
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Cambiar color cuando el usuario interactúe */
+.controls input[type="range"]::-webkit-slider-thumb {
+    background: #ff5733;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.controls input[type="range"]::-moz-range-thumb {
+    background: #ff5733;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+}
