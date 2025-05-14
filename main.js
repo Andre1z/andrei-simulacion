@@ -41,15 +41,17 @@ document.getElementById('zoomfactor').onchange = function(e) {
     zoomfactor = parseInt(e.target.value);
 };
 
-// Botones para detener y reanudar la simulación
+// Botón "Detener Simulación" restaurado (como antes)
+// Al presionarlo se detiene el game loop.
 document.getElementById('stopSimulation').addEventListener('click', () => {
     simulationRunning = false;
 });
 
+// Botón "Reanudar Simulación" reanuda el ciclo de simulación si está detenido.
 document.getElementById('resumeSimulation').addEventListener('click', () => {
     if (!simulationRunning) {
         simulationRunning = true;
-        // Actualizar y redibujar inmediatamente antes de reiniciar el ciclo.
+        // Actualizar y redibujar para reiniciar el ciclo.
         update();
         draw();
         updateStats();
@@ -79,19 +81,20 @@ document.getElementById('timeSpeed').addEventListener('input', (e) => {
 });
 
 // Función para reinicializar la simulación cuando se cambia el número de agentes.
-// Se conserva el estado de los agentes existentes (aquellos con id < numAgents)
+// Se conserva el estado de los agentes existentes (aquellos con id < numAgents).
 function reinitializeAgents() {
-    // Si se eliminan agentes, se remueven del npcStates
+    // Si se eliminan agentes, se remueven del npcStates.
     for (let id in npcStates) {
         if (parseInt(id) >= numAgents) {
             delete npcStates[id];
         }
     }
-    // Finalizar todos los workers actuales
+    // Finaliza todos los workers actuales.
     npcWorkers.forEach(worker => worker.terminate());
     npcWorkers = [];
-    // Reiniciar la generación de agentes (los ya existentes se conservarán)
+    // Reinicializa la generación de agentes (se conservarán los existentes y se crearán nuevos para los índices nuevos).
     initializeAgents();
+    // Actualiza la visualización en #stats.
     updateStats();
 }
 
@@ -110,7 +113,7 @@ function loadStateFromServer() {
         .then(data => {
             if (data.npcStates && data.currentTimeSeconds !== undefined) {
                 savedStateFromServer = data;
-                // Se cargan los estados guardados únicamente si npcStates está vacío.
+                // Se cargan los estados guardados solo si npcStates está vacío.
                 if (!Object.keys(npcStates).length) {
                     npcStates = data.npcStates;
                     currentTimeSeconds = data.currentTimeSeconds;
@@ -192,7 +195,7 @@ mapa.onload = function() {
 // Agent Initialization
 // ----------------------
 function initializeAgents() {
-    // Determine number of workers based on available cores (with a fallback value).
+    // Determine number of workers based on available cores (with a fallback).
     const numCores = navigator.hardwareConcurrency || 4;
     const agentsPerWorker = Math.ceil(numAgents / numCores);
 
@@ -212,17 +215,16 @@ function initializeAgents() {
         }
     }
 
-    // Check that the required position arrays have data.
+    // Verifica que los arrays necesarios tengan datos.
     if (!walkablePositions.length || !bedPositions.length || !workPositions.length || !foodPositions.length) {
         console.error("One or more terrain positions arrays are empty. Check your map image and color detection.");
         return;
     }
 
-    // No reinicializamos npcStates aquí; se utilizarán los existentes para los agentes que ya estaban.
+    // Para cada agente, se conserva el estado existente (si ya existe) y se crea uno nuevo para los índices faltantes.
     let allAgentsData = [];
     for (let i = 0; i < numAgents; i++) {
         let initData;
-        // Si ya existe un estado para este agente, reutilízalo.
         if (npcStates.hasOwnProperty(i)) {
             initData = {
                 id: i,
@@ -233,7 +235,6 @@ function initializeAgents() {
                 savedState: npcStates[i]
             };
         } else {
-            // Sino, crear uno nuevo aleatoriamente.
             initData = {
                 id: i,
                 initialPosition: walkablePositions[Math.floor(Math.random() * walkablePositions.length)],
@@ -246,13 +247,13 @@ function initializeAgents() {
     }
     console.log(`Total agents to initialize: ${allAgentsData.length}`);
 
-    // Actualizamos la vista de estadísticas para reflejar el número actual de agentes.
+    // Actualiza la vista de estadísticas para reflejar el número actual de agentes.
     updateStats();
 
-    // Partition the agents among the available workers.
+    // Distribuye los agentes entre los workers disponibles.
     for (let w = 0; w < numCores; w++) {
         const start = w * agentsPerWorker;
-        if (start >= numAgents) break; // Solo crea un worker si hay agentes que procesar.
+        if (start >= numAgents) break;
         const end = Math.min(start + agentsPerWorker, numAgents);
         console.log(`Initializing worker ${w}: Agents ${start} to ${end - 1}`);
         const agentsDataForWorker = allAgentsData.slice(start, end);
@@ -270,7 +271,7 @@ function initializeAgents() {
             scaleFactor: scaleFactor
         });
 
-        // Cuando un worker retorna sus datos, se actualiza npcStates.
+        // Cuando el worker retorna sus datos, se actualiza npcStates.
         worker.onmessage = function(e) {
             const statesArray = e.data.states;
             if (statesArray && statesArray.length) {
@@ -289,12 +290,11 @@ function initializeAgents() {
 // Update, Draw and Loop
 // ----------------------
 
-// Difundir el mensaje de update a todos los workers.
+// Se envía el mensaje update a todos los workers y se incrementa el tiempo.
 function update() {
     npcWorkers.forEach(worker => {
         worker.postMessage({ type: 'update', currentTimeSeconds: currentTimeSeconds });
     });
-    // Avanza el tiempo teniendo en cuenta el factor de velocidad.
     currentTimeSeconds = (currentTimeSeconds + timeStepSeconds * timeSpeedFactor) % (12 * 31 * 86400);
 }
 
@@ -304,7 +304,6 @@ function draw() {
     backgroundCtx.setTransform(1, 0, 0, 1, 0, 0);
     backgroundCtx.clearRect(0, 0, backgroundCanvas.width, backgroundCanvas.height);
     if (followAgentIndex === 0) {
-        // Sin seguimiento; dibuja el mapa normalmente.
         backgroundCtx.drawImage(mapa, 0, 0);
     } else {
         const agentId = followAgentIndex - 1;
@@ -351,7 +350,6 @@ function draw() {
             });
             playersCtx.restore();
         } else {
-            // Fallback si el agente a seguir no se encuentra.
             Object.values(npcStates).forEach(state => {
                 playersCtx.fillStyle = 'black';
                 playersCtx.fillRect(state.position[1] * scaleFactor, state.position[0] * scaleFactor, scaleFactor, scaleFactor);
@@ -360,7 +358,7 @@ function draw() {
     }
 }
 
-// Limpia periódicamente el canvas de NPCs para reducir el rastro.
+// Limpia periódicamente el canvas de NPCs para reducir el efecto de rastro.
 setInterval(() => {
     playersCtx.fillStyle = "rgba(255,255,255,0.1)";
     playersCtx.fillRect(0, 0, playersCanvas.width, playersCanvas.height);
@@ -418,7 +416,9 @@ function updatePieChart() {
 }
 
 // Main game loop.
+// Se añade la verificación de simulationRunning para que "Detener Simulación" funcione como antes.
 function gameLoop() {
+    if (!simulationRunning) return;
     update();
     draw();
     updateStats();
