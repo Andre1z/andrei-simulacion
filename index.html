@@ -1,41 +1,49 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulación de NPC</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulación de NPC</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div class="controls">
-        <label for="agentSelector">Seguir a agente (0 = ninguno):</label>
-        <input type="number" id="agentSelector" value="0" min="0">
-        <input type="range" id="zoomfactor" min="1" max="10" step="1" value="4">
-        <button id="stopSimulation">Detener Simulación</button>
-        <button id="resumeSimulation">Reanudar Simulación</button>
-    </div>
-    <table>
-        <tr>
-            <td colspan="2">
-                <div id="contienecanvas">
-                    <canvas id="backgroundCanvas" width="800" height="600"></canvas>
-                    <canvas id="playersCanvas" width="800" height="600"></canvas>
-                </div>
-            </td>
-        </tr>
-        <tr class="centered-row">
-            <td colspan="2">
-                <div id="clock"></div>
-            </td>
-        </tr>
-        <tr class="bottom-center">
-            <td><div id="stats"></div></td>
-            <td><canvas id="pieChart" width="400" height="400"></canvas></td>
-        </tr>
-    </table>
-
-    <script src="Persona.js"></script>
-    <script src="utils.js"></script>
-    <script src="main.js"></script>
+  <div class="controls">
+      <label for="agentSelector">Seguir a agente (0 = ninguno):</label>
+      <input type="number" id="agentSelector" value="0" min="0">
+      <input type="range" id="zoomfactor" min="1" max="10" step="1" value="4">
+      <button id="stopSimulation">Detener Simulación</button>
+      <button id="resumeSimulation">Reanudar Simulación</button>
+      <!-- Botones para agregar o eliminar agentes -->
+      <button id="addAgent">Agregar Agente</button>
+      <button id="removeAgent">Eliminar Agente</button>
+      <!-- Control para velocidad del tiempo -->
+      <div class="time-control">
+          <label for="timeSpeed">Velocidad del Tiempo:</label>
+          <input type="range" id="timeSpeed" min="0.1" max="5" step="0.1" value="1">
+      </div>
+  </div>
+  <table>
+      <tr>
+          <td colspan="2">
+              <div id="contienecanvas">
+                  <canvas id="backgroundCanvas" width="800" height="600"></canvas>
+                  <canvas id="playersCanvas" width="800" height="600"></canvas>
+              </div>
+          </td>
+      </tr>
+      <tr class="centered-row">
+          <td colspan="2">
+              <div id="clock"></div>
+          </td>
+      </tr>
+      <tr class="bottom-center">
+          <td><div id="stats"></div></td>
+          <td><canvas id="pieChart" width="400" height="400"></canvas></td>
+      </tr>
+  </table>
+  
+  <script src="Persona.js"></script>
+  <script src="utils.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
