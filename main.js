@@ -41,17 +41,16 @@ document.getElementById('zoomfactor').onchange = function(e) {
     zoomfactor = parseInt(e.target.value);
 };
 
-// Botón "Detener Simulación" restaurado (como antes)
-// Al presionarlo se detiene el game loop.
+// Botón "Detener Simulación" (restaurado)
 document.getElementById('stopSimulation').addEventListener('click', () => {
     simulationRunning = false;
 });
 
-// Botón "Reanudar Simulación" reanuda el ciclo de simulación si está detenido.
+// Botón "Reanudar Simulación"
 document.getElementById('resumeSimulation').addEventListener('click', () => {
     if (!simulationRunning) {
         simulationRunning = true;
-        // Actualizar y redibujar para reiniciar el ciclo.
+        // Actualizar y redibujar inmediatamente antes de reiniciar el ciclo.
         update();
         draw();
         updateStats();
@@ -253,7 +252,7 @@ function initializeAgents() {
     // Distribuye los agentes entre los workers disponibles.
     for (let w = 0; w < numCores; w++) {
         const start = w * agentsPerWorker;
-        if (start >= numAgents) break;
+        if (start >= numAgents) break; // Solo crea un worker si hay agentes para procesar.
         const end = Math.min(start + agentsPerWorker, numAgents);
         console.log(`Initializing worker ${w}: Agents ${start} to ${end - 1}`);
         const agentsDataForWorker = allAgentsData.slice(start, end);
@@ -290,7 +289,7 @@ function initializeAgents() {
 // Update, Draw and Loop
 // ----------------------
 
-// Se envía el mensaje update a todos los workers y se incrementa el tiempo.
+// Envía el mensaje update a todos los workers y aumenta el tiempo.
 function update() {
     npcWorkers.forEach(worker => {
         worker.postMessage({ type: 'update', currentTimeSeconds: currentTimeSeconds });
@@ -298,7 +297,7 @@ function update() {
     currentTimeSeconds = (currentTimeSeconds + timeStepSeconds * timeSpeedFactor) % (12 * 31 * 86400);
 }
 
-// Función draw actualiza los canvas de background y players.
+// Función draw que actualiza los canvas de background y players.
 function draw() {
     // --- Draw Background Canvas ---
     backgroundCtx.setTransform(1, 0, 0, 1, 0, 0);
@@ -312,7 +311,7 @@ function draw() {
         const zoomFactor = zoomfactor;
         const canvasCenterX = backgroundCanvas.width / 2;
         const canvasCenterY = backgroundCanvas.height / 2;
-        if (agentState) {
+        if (agentState && agentState.position) {
             const agentWorldX = agentState.position[1] * scaleFactor;
             const agentWorldY = agentState.position[0] * scaleFactor;
             backgroundCtx.translate(canvasCenterX, canvasCenterY);
@@ -328,13 +327,15 @@ function draw() {
     playersCtx.clearRect(0, 0, playersCanvas.width, playersCanvas.height);
     if (followAgentIndex === 0) {
         Object.values(npcStates).forEach(state => {
-            playersCtx.fillStyle = 'black';
-            playersCtx.fillRect(state.position[1] * scaleFactor, state.position[0] * scaleFactor, scaleFactor, scaleFactor);
+            if (state && state.position) {
+                playersCtx.fillStyle = 'black';
+                playersCtx.fillRect(state.position[1] * scaleFactor, state.position[0] * scaleFactor, scaleFactor, scaleFactor);
+            }
         });
     } else {
         const agentId = followAgentIndex - 1;
         const agentState = npcStates[agentId];
-        if (agentState) {
+        if (agentState && agentState.position) {
             playersCtx.save();
             const zoomFactor = 4;
             const canvasCenterX = playersCanvas.width / 2;
@@ -345,14 +346,19 @@ function draw() {
             playersCtx.scale(zoomFactor, zoomFactor);
             playersCtx.translate(-agentWorldX, -agentWorldY);
             Object.values(npcStates).forEach(state => {
-                playersCtx.fillStyle = 'black';
-                playersCtx.fillRect(state.position[1] * scaleFactor, state.position[0] * scaleFactor, scaleFactor, scaleFactor);
+                if (state && state.position) {
+                    playersCtx.fillStyle = 'black';
+                    playersCtx.fillRect(state.position[1] * scaleFactor, state.position[0] * scaleFactor, scaleFactor, scaleFactor);
+                }
             });
             playersCtx.restore();
         } else {
+            // Fallback: dibujar sin seguimiento si no se encuentra el agente.
             Object.values(npcStates).forEach(state => {
-                playersCtx.fillStyle = 'black';
-                playersCtx.fillRect(state.position[1] * scaleFactor, state.position[0] * scaleFactor, scaleFactor, scaleFactor);
+                if (state && state.position) {
+                    playersCtx.fillStyle = 'black';
+                    playersCtx.fillRect(state.position[1] * scaleFactor, state.position[0] * scaleFactor, scaleFactor, scaleFactor);
+                }
             });
         }
     }
@@ -387,9 +393,9 @@ function updatePieChart() {
     };
 
     Object.values(npcStates).forEach(state => {
-        if (state.path && state.path.length > 0) {
+        if (state && state.path && state.path.length > 0) {
             needsCounts.moving++;
-        } else {
+        } else if (state && state.need) {
             needsCounts[state.need] = (needsCounts[state.need] || 0) + 1;
         }
     });
@@ -416,7 +422,7 @@ function updatePieChart() {
 }
 
 // Main game loop.
-// Se añade la verificación de simulationRunning para que "Detener Simulación" funcione como antes.
+// Se verifica simulationRunning para que "Detener Simulación" funcione como antes.
 function gameLoop() {
     if (!simulationRunning) return;
     update();
